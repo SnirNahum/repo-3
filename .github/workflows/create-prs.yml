@@ -20,10 +20,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set Git identity
+      - name: Configure Git identity
         run: |
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "github-actions[bot]"
+          git config --global user.email "bot@snir.dev"
+          git config --global user.name "Snir Bot"
 
       - name: Install GitHub CLI
         run: |
@@ -33,11 +33,8 @@ jobs:
       - name: Authenticate GitHub CLI
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: echo "Authenticated"
+        run: echo $GH_TOKEN | gh auth login --with-token
 
-      - name: Run PowerShell script to create PRs
+      - name: Run PowerShell script
         shell: pwsh
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ./make-prs.ps1 -Count ${{ github.event.inputs.prs }}
+        run: ./make-prs.ps1 -Count ${{ github.event.inputs.prs }}
