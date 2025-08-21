@@ -10,7 +10,7 @@ on:
         description: 'Number of PRs to open'
         required: true
       fork_from:
-        description: 'Fork from (optional)'
+        description: ''
         required: false
 
 jobs:
