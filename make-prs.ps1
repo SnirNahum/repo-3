@@ -1,9 +1,10 @@
-# === ONE REPO, MANY PR SETS ===
-# Run this inside your repo folder. Requires only git.
-# If GitHub CLI (gh) is installed, PRs will be opened automatically as drafts.
+param(
+  [Parameter(Mandatory=$true)][int]$Count
+)
 
 function Ensure-Branch {
-  param([string]$Base="main", [string]$From="main")
+  param([string]$Base = "main", [string]$From = "main")
+
   $exists = (git branch -a | Select-String -SimpleMatch "remotes/origin/$Base") -ne $null
   if (-not $exists) {
     git checkout $From
@@ -46,8 +47,11 @@ function New-PRSet {
     }
   }
 
-  Write-Host "✅ Created $Count branches for base '$Base'." -ForegroundColor Green
+  Write-Host "✅ Created $Count PRs for base '$Base'." -ForegroundColor Green
   if (-not $hasGh) {
-    Write-Host "Open PRs via GitHub UI: base=$Base, compare=feature/$Base-pr-<n>." -ForegroundColor Yellow
+    Write-Host "⚠️ GitHub CLI not found. Open PRs manually." -ForegroundColor Yellow
   }
 }
+
+# Run the PR creation
+New-PRSet -Base "base-prs" -Count $Count
