@@ -20,10 +20,6 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Install PowerShell
-        uses: actions/setup-powershell@v2
-
-      - name: Run create-prs.ps1
+      - name: Run PowerShell script
         shell: pwsh
-        run: |
-          ./create-prs.ps1 -RepoName "${{ github.event.inputs.repo_name }}" -PRs [int]${{ github.event.inputs.prs }} -ForkFrom "${{ github.event.inputs.fork_from }}"
+        run: ./create-prs.ps1
