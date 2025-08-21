@@ -53,5 +53,4 @@ function New-PRSet {
   }
 }
 
-# Run the PR creation
 New-PRSet -Base "base-prs" -Count $Count

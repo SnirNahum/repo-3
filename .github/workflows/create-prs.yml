@@ -33,5 +33,5 @@ jobs:
       - name: Run PowerShell script
         shell: pwsh
         env:
-        GH_TOKEN: ${{ secrets.gh-cli-pat }}
+          GH_TOKEN: ${{ secrets.gh-cli-pat }}
         run: ./make-prs.ps1 -Count ${{ github.event.inputs.prs }}
