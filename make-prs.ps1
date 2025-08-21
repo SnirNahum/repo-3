@@ -59,8 +59,8 @@ function New-PRSet {
       }
 
     } catch {
-      Write-Error "❌ Error creating PR for $branch: $_"
-    }
+        Write-Error "❌ Error creating PR for $branch:`n$_"
+      }
   }
 
   Write-Host "`n🎉 All done. $Count PR(s) processed for base '$Base'." -ForegroundColor Green
