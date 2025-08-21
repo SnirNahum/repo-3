@@ -7,6 +7,8 @@ on:
         description: 'Number of PRs to create'
         required: true
         default: '5'
+  repository_dispatch:
+    types: [port-trigger]
 
 permissions:
   contents: write
@@ -41,4 +43,6 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GH_CLI_PAT }}
-        run: ./make-prs.ps1 -Count ${{ github.event.inputs.prs }}
+        run: |
+          $count = "${{ github.event.inputs.prs || github.event.client_payload.prs || '5' }}"
+          ./make-prs.ps1 -Count $count
