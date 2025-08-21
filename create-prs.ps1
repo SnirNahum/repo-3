@@ -1,22 +1,53 @@
-name: Create PRs
+# === ONE REPO, MANY PR SETS ===
+# Run this inside your repo folder. Requires only git.
+# If GitHub CLI (gh) is installed, PRs will be opened automatically as drafts.
 
-on:
-  workflow_dispatch:  
+function Ensure-Branch {
+  param([string]$Base="main", [string]$From="main")
+  $exists = (git branch -a | Select-String -SimpleMatch "remotes/origin/$Base") -ne $null
+  if (-not $exists) {
+    git checkout $From
+    git pull --ff-only origin $From 2>$null
+    git checkout -b $Base $From
+    git push -u origin $Base
+  } else {
+    git checkout $Base
+    git pull --ff-only origin $Base 2>$null
+  }
+}
 
-jobs:
-  generate-prs:
-    runs-on: ubuntu-latest
+function New-PRSet {
+  param(
+    [Parameter(Mandatory=$true)][string]$Base,
+    [Parameter(Mandatory=$true)][int]$Count
+  )
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+  Ensure-Branch -Base $Base -From "main"
 
-      - name: Install GitHub CLI
-        run: |
-          sudo apt update
-          sudo apt install gh -y
+  $hasGh = (Get-Command gh -ErrorAction SilentlyContinue) -ne $null
 
-      - name: Run PowerShell script
-        shell: pwsh
-        run: |
-          ./create-prs.ps1 -RepoName "${{ github.repository }}" -PRs 5
+  for ($i = 1; $i -le $Count; $i++) {
+    $branch = "feature/$Base-pr-$i"
+
+    git checkout -b $branch $Base
+    "auto content for $Base #$i $(Get-Date -Format o)" | Out-File -Encoding utf8 "file-$Base-$i.txt"
+    git add "file-$Base-$i.txt"
+    git commit -m "feat($Base): add file $i"
+    git push -u origin $branch
+    git checkout $Base
+
+    if ($hasGh) {
+      gh pr create `
+        --base $Base `
+        --head $branch `
+        --title "$Base PR #$i - add file $i" `
+        --body "Auto-generated PR $i targeting $Base." `
+        --draft | Out-Null
+    }
+  }
+
+  Write-Host "✅ Created $Count branches for base '$Base'." -ForegroundColor Green
+  if (-not $hasGh) {
+    Write-Host "Open PRs via GitHub UI: base=$Base, compare=feature/$Base-pr-<n>." -ForegroundColor Yellow
+  }
+}

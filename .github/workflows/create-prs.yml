@@ -24,4 +24,4 @@ jobs:
       - name: Run PowerShell script
         shell: pwsh
         run: |
-          ./create-prs.ps1 -RepoName "${{ github.repository }}" -PRs ${{ github.event.inputs.prs }}
+          ./create-prs.ps1 -PRs ${{ github.event.inputs.prs }}
