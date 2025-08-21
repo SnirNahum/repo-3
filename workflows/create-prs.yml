@@ -1,0 +1,29 @@
+name: Create PRs
+
+on:
+  workflow_dispatch:
+    inputs:
+      repo_name:
+        description: 'Repo name'
+        required: true
+      prs:
+        description: 'Number of PRs to open'
+        required: true
+      fork_from:
+        description: 'Fork from (optional)'
+        required: false
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install PowerShell
+        uses: actions/setup-powershell@v2
+
+      - name: Run create-prs.ps1
+        shell: pwsh
+        run: |
+          ./create-prs.ps1 -RepoName "${{ github.event.inputs.repo_name }}" -PRs [int]${{ github.event.inputs.prs }} -ForkFrom "${{ github.event.inputs.fork_from }}"
