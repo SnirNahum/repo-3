@@ -30,14 +30,14 @@ jobs:
           sudo apt update
           sudo apt install gh -y
 
-      - name: Check GH CLI auth
+      - name: Check GitHub CLI auth
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GH_CLI_PAT }}
         run: |
           gh auth status
 
-      - name: Run PowerShell script
+      - name: Run PR creation PowerShell script
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GH_CLI_PAT }}

@@ -26,31 +26,45 @@ function New-PRSet {
   Ensure-Branch -Base $Base -From "main"
 
   $hasGh = (Get-Command gh -ErrorAction SilentlyContinue) -ne $null
+  if (-not $hasGh) {
+    Write-Error "❌ GitHub CLI (gh) is not installed or not in PATH."
+    return
+  }
 
   for ($i = 1; $i -le $Count; $i++) {
     $branch = "feature/$Base-pr-$i"
+    $fileName = "file-$Base-$i.txt"
 
-    git checkout -b $branch $Base
-    "auto content for $Base #$i $(Get-Date -Format o)" | Out-File -Encoding utf8 "file-$Base-$i.txt"
-    git add "file-$Base-$i.txt"
-    git commit -m "feat($Base): add file $i"
-    git push -u origin $branch --force
-    git checkout $Base
+    try {
+      git checkout -b $branch $Base
+      "auto content for $Base #$i $(Get-Date -Format o)" | Out-File -Encoding utf8 $fileName
+      git add $fileName
+      git commit -m "feat($Base): add file $i"
+      git push -u origin $branch --force
+      git checkout $Base
 
-    if ($hasGh) {
-      gh pr create `
+      Write-Host "📦 Branch pushed: $branch"
+
+      $prUrl = gh pr create `
         --base $Base `
         --head $branch `
         --title "$Base PR #$i - add file $i" `
         --body "Auto-generated PR $i targeting $Base." `
-        --draft | Out-Null
+        --draft
+
+      if ($prUrl) {
+        Write-Host "✅ PR created: $prUrl"
+      } else {
+        Write-Warning "⚠️ No PR URL returned for $branch"
+      }
+
+    } catch {
+      Write-Error "❌ Error creating PR for $branch: $_"
     }
   }
 
-  Write-Host "✅ Created $Count PRs for base '$Base'." -ForegroundColor Green
-  if (-not $hasGh) {
-    Write-Host "⚠️ GitHub CLI not found. Open PRs manually." -ForegroundColor Yellow
-  }
+  Write-Host "`n🎉 All done. $Count PR(s) processed for base '$Base'." -ForegroundColor Green
 }
 
+# Run it
 New-PRSet -Base "base-prs" -Count $Count
