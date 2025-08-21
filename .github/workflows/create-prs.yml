@@ -3,23 +3,25 @@ name: Create PRs
 on:
   workflow_dispatch:
     inputs:
-      repo_name:
-        description: 'Repo name'
-        required: true
       prs:
-        description: 'Number of PRs to open'
+        description: 'Number of PRs to create'
         required: true
-      fork_from:
-        description: ''
-        required: false
+        default: '5'
 
 jobs:
-  run-script:
+  generate-prs:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install GitHub CLI
+        run: |
+          sudo apt update
+          sudo apt install gh -y
 
       - name: Run PowerShell script
         shell: pwsh
-        run: ./create-prs.ps1
+        run: |
+          ./create-prs.ps1 -RepoName "${{ github.repository }}" -PRs ${{ github.event.inputs.prs }}
