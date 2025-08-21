@@ -35,3 +35,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.gh-cli-pat }}
         run: ./make-prs.ps1 -Count ${{ github.event.inputs.prs }}
+
+      - name: Check GH CLI auth
+        run: gh auth status
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.gh-cli-pat }}
