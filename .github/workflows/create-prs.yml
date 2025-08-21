@@ -33,16 +33,20 @@ jobs:
           sudo apt install gh -y
 
       - name: Check GitHub CLI auth
-        shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GH_CLI_PAT }}
-        run: |
-          gh auth status
+        run: gh auth status
 
       - name: Run PR creation PowerShell script
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GH_CLI_PAT }}
         run: |
-          $count = "${{ github.event.inputs.prs || github.event.client_payload.prs || '5' }}"
+          $count = "${{ github.event.inputs.prs }}"
+          if (-not $count) {
+            $count = "${{ github.event.client_payload.prs }}"
+          }
+          if (-not $count) {
+            $count = "5"
+          }
           ./make-prs.ps1 -Count $count
