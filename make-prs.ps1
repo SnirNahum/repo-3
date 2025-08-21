@@ -34,7 +34,7 @@ function New-PRSet {
     "auto content for $Base #$i $(Get-Date -Format o)" | Out-File -Encoding utf8 "file-$Base-$i.txt"
     git add "file-$Base-$i.txt"
     git commit -m "feat($Base): add file $i"
-    git push -u origin $branch
+    git push -u origin $branch --force
     git checkout $Base
 
     if ($hasGh) {
