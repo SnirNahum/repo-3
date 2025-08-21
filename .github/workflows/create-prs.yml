@@ -21,13 +21,15 @@ jobs:
           sudo apt update
           sudo apt install gh -y
 
-      - name: Authenticate GH CLI
-        run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+      - name: Configure GitHub CLI authentication
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Run PowerShell script
-        shell: pwsh
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ./create-prs.ps1 -RepoName "${{ github.repository }}" -PRs ${{ github.event.inputs.prs }}
+          echo "GitHub CLI authenticated via GH_TOKEN"
+
+      - name: Run PowerShell script to create PRs
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./make-prs.ps1 -Count ${{ github.event.inputs.prs }}
