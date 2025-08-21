@@ -8,6 +8,10 @@ on:
         required: true
         default: '5'
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   generate-prs:
     runs-on: ubuntu-latest
@@ -16,16 +20,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Set Git identity
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
       - name: Install GitHub CLI
         run: |
           sudo apt update
           sudo apt install gh -y
 
-      - name: Configure GitHub CLI authentication
+      - name: Authenticate GitHub CLI
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "GitHub CLI authenticated via GH_TOKEN"
+        run: echo "Authenticated"
 
       - name: Run PowerShell script to create PRs
         shell: pwsh
